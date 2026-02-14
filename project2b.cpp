@@ -110,10 +110,7 @@ void testHiddenData() {
 
     struct HiddenDataComp {
         bool operator()(const HiddenData &a, const HiddenData &b) const {
-            // TODO: Finish this comparator
-            (void)a;  // Delete this line when you finish this function
-            (void)b;  // Delete this line when you finish this function
-            return false;
+            return a.data < b.data;
         } // operator()()
     }; // comparator
 
@@ -122,7 +119,20 @@ void testHiddenData() {
     // TODO: Add code here to actually test with the HiddenData type.
     // Consider writing this code in the style of testPrimitiveOperations
     // above.
+    PQ<HiddenData, HiddenDataComp> pq;
+    Eecs281PQ<HiddenData, HiddenDataComp> &eecsPQ = pq;
 
+    eecsPQ.push({5});
+    eecsPQ.push({1});
+    eecsPQ.push({10});
+
+    assert(eecsPQ.top().data == 10);
+    eecsPQ.pop();
+    assert(eecsPQ.top().data == 5);
+    eecsPQ.pop();
+    assert(eecsPQ.top().data == 1);
+    eecsPQ.pop();
+    assert(eecsPQ.empty());
     std::cout << "testHiddenData succeeded!" << std::endl;
 } // testHiddenData()
 

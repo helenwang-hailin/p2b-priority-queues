@@ -76,7 +76,7 @@ public:
         // NOTE: The structure does not have to be identical to the original,
         //       but it must still be a valid pairing heap.
         std::deque<Node*> dq;
-        dq.push_back(other.root);
+        if (other.root) dq.push_back(other.root);
         while(!dq.empty()) {
             Node* p = dq.front();
             dq.pop_front();
@@ -133,7 +133,10 @@ public:
     virtual void updatePriorities() {
         // TODO: Implement this function.
         std::deque<Node*> dq;
-        dq.push_back(root);
+        if (root->child) {
+            dq.push_back(root->child);
+        }
+        root->child = nullptr;
         while(!dq.empty()) {
             Node* p = dq.front();
             dq.pop_front();
@@ -170,8 +173,8 @@ public:
             return;
         }
         std::deque<Node*> dq;
-        while (p->sibling) {
-            dq.push_back(p->sibling);
+        while (p) {
+            dq.push_back(p);
             p = p->sibling;
         }
         while (dq.size() > 1) {
@@ -227,20 +230,19 @@ public:
     void updateElt(Node *node, const TYPE &new_value) {
         // TODO: Implement this function
         node->elt = new_value;
-        if (node->parent) {
-            if (this->compare(node->parent->elt, node->elt))
-                if (node->parent->child == node) {
-                    node->parent->child = node->sibling;
-                } else {
-                    Node *left = node->parent->child;
-                    while (left->sibling != node) {
-                        left = left->sibling;
-                    }
-                    left->sibling = node->sibling;
+        if (node->parent && this->compare(node->parent->elt, node->elt)) {
+            if (node->parent->child == node) {
+                node->parent->child = node->sibling;
+            } else {
+                Node *left = node->parent->child;
+                while (left->sibling != node) {
+                    left = left->sibling;
                 }
-                node->parent = node->sibling = nullptr;
-                root = meld(node, root);
+                left->sibling = node->sibling;
             }
+            node->parent = node->sibling = nullptr;
+            root = meld(node, root);
+        }
     }  // updateElt()
 
 
@@ -271,8 +273,8 @@ private:
     // TODO: We recommend creating a 'meld' function (see the Pairing Heap
     // papers).
     Node* meld(Node* pa, Node* pb) {
-        if (!a) return b;
-        if (!b) return a;
+        if (!pa) return pb;
+        if (!pb) return pa;
         //pa<pb
         if (this->compare(pa->elt, pb->elt)) {
             pa->sibling = pb->child;
